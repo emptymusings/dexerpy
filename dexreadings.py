@@ -81,6 +81,7 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
         records = []
 
         for bg in bgs:
+            print(bg.__dict__)
             records.append((bg.mg_dl, bg.mmol_l, bg.trend, bg.trend_description, datetime.strftime(bg.time, "%Y-%m-%d %H:%M:%S")))
         
         print(f'Sending {len(bgs)} readings to database')      
