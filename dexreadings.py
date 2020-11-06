@@ -18,12 +18,12 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "",['dex-user=', 'dex-pw=', 'server=', 'port=', 'db-user=', 'db-pw=', 'db=', 'max'])
     except getopt.GetoptError:
-        print(f'dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+        print(f'Error parsing arguments.  Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-            print(f'dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+            print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
             sys.exit()
         elif opt == '--dex-user':
             dexcom_user_name = arg
@@ -43,7 +43,7 @@ def main(argv):
             most_recent = False
         else:
             print(f'Invalid Argument.')
-            print(f'dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+            print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
             sys.exit()
 
     bgs = get_readings(dexcom_user_name, dexcom_password, most_recent)
@@ -87,7 +87,7 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
         cursor.executemany(sql_command, records)
         connection.commit()
         print(f'Readings saved successfully')
-        
+
     except mariadb.Error as e:
             print(f"Error storing data to the database: {e}")
             sys.exit(1)
