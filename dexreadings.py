@@ -79,17 +79,24 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
 
         sql_command = f'INSERT INTO {database}.values (mg_dl, mmol_l, trend_val, trend_arrow, trend_desc, reading_time) VALUES(?, ?, ?, ?, ?, ?)'
         records = []
-        val = {}
-
+        
         for bg in bgs:
-            print(bg.__dict__)            
-            records.append((bg.mg_dl, bg.mmol_l, bg.trend, bg.trend_arrow, bg.trend_description, datetime.strftime(bg.time, "%Y-%m-%d %H:%M:%S")))
-        
-        
-        print(f'Sending {len(bgs)} readings to database')      
-        cursor.executemany(sql_command, records)
-        connection.commit()
-        print(f'Readings saved successfully')
+            formatted_date = datetime.strftime(bg.time, "%Y-%m-%d %H:%M:%S")
+
+            cursor.execute(f'SELECT reading_time FROM {database}.values WHERE reading_time >= ?', (formatted_date, ))
+            print('Checking for existing')
+            result = cursor.fetchone()
+
+            if not result:
+                records.append((bg.mg_dl, bg.mmol_l, bg.trend, bg.trend_arrow, bg.trend_description, formatted_date))
+            else:
+                print(f'Record exists: {result}')
+                
+        if (len(records)):
+            print(f'Sending {len(records)} readings to database')      
+            cursor.executemany(sql_command, records)
+            connection.commit()
+            print(f'Readings saved successfully')
 
     except mariadb.Error as e:
             print(f"Error storing data to the database: {e}")
