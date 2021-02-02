@@ -5,6 +5,16 @@ import getopt
 import mariadb
 from datetime import datetime
 
+def log(message):
+	if (len(message) > 0):
+		now = datetime.now()
+		message = f'{now.strftime("%m/%d/%Y %H:%M:%S")}:\t\t{message}'
+	
+	print(message)
+
+	with open('dexreadings.log', 'a+') as f:
+		f.write(f'{message}\n')
+
 def main(argv):
     dexcom_user_name = ''
     dexcom_password = ''
@@ -18,7 +28,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "",['dex-user=', 'dex-pw=', 'server=', 'port=', 'db-user=', 'db-pw=', 'db=', 'max'])
     except getopt.GetoptError:
-        print(f'Error parsing arguments.  Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+        log(f'Error parsing arguments.  Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
         sys.exit(2)
     
     for opt, arg in opts:
@@ -47,7 +57,7 @@ def main(argv):
             sys.exit()
 
     bgs = get_readings(dexcom_user_name, dexcom_password, most_recent)
-    print(f'Got {len(bgs)} readings -> storing results')
+    log(f'Got {len(bgs)} readings -> storing results')
     
     store_readings(db_user_name, db_password, db_server, db_port, database, bgs)
 
@@ -56,10 +66,10 @@ def get_readings(dexcom_user_name, dexcom_password, latest_reading = True):
     bgs = []
 
     if (latest_reading):
-        print('Getting latest reading from Dexcom')
+        log('Getting latest reading from Dexcom')
         bgs.append(dexcom.get_current_glucose_reading())
     else:
-        print('Getting max readings from Dexcom')
+        log('Getting max readings from Dexcom')
         bgs = dexcom.get_glucose_readings()
 
     return bgs
@@ -84,19 +94,19 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
             formatted_date = datetime.strftime(bg.time, "%Y-%m-%d %H:%M:%S")
 
             cursor.execute(f'SELECT reading_time FROM {database}.values WHERE reading_time >= ?', (formatted_date, ))
-            print('Checking for existing')
+            log('Checking for existing')
             result = cursor.fetchone()
 
             if not result:
                 records.append((bg.mg_dl, bg.mmol_l, bg.trend, bg.trend_arrow, bg.trend_description, formatted_date))
             else:
-                print(f'Record exists: {result}')
+                log(f'Record exists: {result}')
                 
         if (len(records)):
-            print(f'Sending {len(records)} readings to database')      
+            log(f'Sending {len(records)} readings to database')      
             cursor.executemany(sql_command, records)
             connection.commit()
-            print(f'Readings saved successfully')
+            log(f'Readings saved successfully')
 
     except mariadb.Error as e:
             print(f"Error storing data to the database: {e}")
@@ -107,5 +117,9 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
 
 
 if __name__ == '__main__':
+    log('')
+    log('*************** Dexerpy Started ***************')
     main(sys.argv[1:])
+    log('************** Dexerpy Completed **************')
+    log('')
 
