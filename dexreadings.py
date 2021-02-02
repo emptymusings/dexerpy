@@ -32,7 +32,7 @@ def main(argv):
         elif opt == '--server':
             db_server = arg
         elif opt == '--port':
-            db_port = arg        
+            db_port = int(arg)        
         elif opt == '--db-user':
             db_user_name = arg
         elif opt == '--db-pw':
@@ -108,3 +108,4 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
