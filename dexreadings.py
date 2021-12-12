@@ -31,6 +31,11 @@ def main(argv):
         log(f'Error parsing arguments.  Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
         sys.exit(2)
     
+    if not opts:
+        print(f'Invalid Usage.')
+        print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+        sys.exit()
+
     for opt, arg in opts:
         if opt == '-h':
             print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
@@ -55,6 +60,16 @@ def main(argv):
             print(f'Invalid Argument.')
             print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
             sys.exit()
+
+    if not dexcom_user_name or not dexcom_password:
+        print(f'Invalid Usage: Missing dexcom credentials')
+        print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+        sys.exit()
+
+    if not db_server or not db_password or not db_user_name or not db_port or not database:
+        print(f'Invalid Usage: Missing database credentials or connection information')
+        print(f'Usage: dexreadings.py --dex-user <dexcom username> --dex-pw <dexcom password> --server <mariaDb server> --port <mariaDb port> --db-user <database username> --db-pw <database password> --db <database name> [--max]')
+        sys.exit()
 
     bgs = get_readings(dexcom_user_name, dexcom_password, most_recent)
     log(f'Got {len(bgs)} readings -> storing results')
