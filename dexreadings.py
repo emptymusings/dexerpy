@@ -73,7 +73,6 @@ def main(argv):
 
     bgs = get_readings(dexcom_user_name, dexcom_password, most_recent)
     log(f'Got {len(bgs)} readings -> storing results')
-    
     store_readings(db_user_name, db_password, db_server, db_port, database, bgs)
 
 def get_readings(dexcom_user_name, dexcom_password, latest_reading = True):
@@ -106,7 +105,7 @@ def store_readings(db_user_name, db_password, host, port, database, bgs):
         records = []
         
         for bg in bgs:
-            formatted_date = datetime.strftime(bg.time, "%Y-%m-%d %H:%M:%S")
+            formatted_date = datetime.strftime(bg.datetime, "%Y-%m-%d %H:%M:%S")
 
             cursor.execute(f'SELECT reading_time FROM {database}.values WHERE reading_time >= ?', (formatted_date, ))
             log('Checking for existing')
